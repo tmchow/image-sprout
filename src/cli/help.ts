@@ -1,14 +1,18 @@
 export const QUICK_HELP = `image-sprout <command> [options]
 
 Commands:
-  project   Manage projects and generation workflow
-  ref       Manage project reference images
-  session   Inspect project sessions
-  run       Inspect saved runs
-  model     Manage available image models
-  config    Manage local configuration
-  web       Launch the interactive local web app
-  help      Show command help
+  project    Manage projects and generation workflow
+  ref        Manage project reference images
+  session    Inspect project sessions
+  run        Inspect saved runs
+  model      Manage available image models
+  config     Manage local configuration
+  web        Launch the interactive local web app
+  help       Show command help
+
+Aliases:
+  generate   Shorthand for: project generate
+  analyze    Shorthand for: project derive
 
 Options:
   --json       Output JSON
