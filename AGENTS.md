@@ -239,6 +239,21 @@ Important patterns:
 - when changing CLI defaults, update tests to pass `--json` explicitly where structured output is expected
 - `vi.clearAllMocks()` does not reset mock implementations; reset them deliberately in `beforeEach`
 
+## Commits
+
+Use conventional commit messages. The release workflow generates CHANGELOG.md from these prefixes:
+
+- `feat:` — new feature
+- `fix:` — bug fix
+- `refactor:` — code restructuring without behavior change
+- `chore:` — build, deps, config, CI
+- `docs:` — documentation only
+- `test:` — adding or updating tests
+
+Include a scope when it clarifies context: `feat(cli): add batch mode`, `fix(canvas): grid overflow`.
+
+Append `!` before the colon for breaking changes: `feat!: remove legacy config format`, `refactor(cli)!: new arg syntax`.
+
 ## Notes For Agents
 
 - Do not assume the old IndexedDB architecture described in earlier docs still applies.
