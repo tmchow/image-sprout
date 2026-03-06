@@ -69,10 +69,12 @@ const SESSION_HELP = `image-sprout session <subcommand> [options]
 Subcommands:
   list       List sessions for a project
   show       Show one session
+  delete     Delete a session and its runs
 
 Examples:
   image-sprout session list --project comic-hero
-  image-sprout session show --project comic-hero <session-id>`;
+  image-sprout session show --project comic-hero <session-id>
+  image-sprout session delete --project comic-hero <session-id>`;
 
 const RUN_HELP = `image-sprout run <subcommand> [options]
 
@@ -86,9 +88,13 @@ Examples:
   image-sprout run latest --project comic-hero
   image-sprout run show --project comic-hero <run-id>`;
 
-const WEB_HELP = `image-sprout web [--port <number>]
+const WEB_HELP = `image-sprout web [--port <number>] [--open]
 
-Launch the interactive local web app against the shared on-disk project store.`;
+Launch the interactive local web app against the shared on-disk project store.
+
+Options:
+  --port <number>  Port to listen on (default: 4310)
+  --open           Open the app in the default browser`;
 
 const MODELS_HELP = `image-sprout model <subcommand> [options]
 

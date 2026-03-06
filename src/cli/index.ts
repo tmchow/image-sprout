@@ -1065,8 +1065,15 @@ function runVersion(ctx: CommandContext): void {
   emitSuccess(ctx, { version: ctx.version }, (payload) => payload.version);
 }
 
+async function openInBrowser(url: string): Promise<void> {
+  const { platform } = process;
+  const { exec } = await import('node:child_process');
+  const cmd = platform === 'darwin' ? 'open' : platform === 'win32' ? 'start' : 'xdg-open';
+  exec(`${cmd} ${url}`);
+}
+
 async function runWeb(ctx: CommandContext, args: ParsedArgv): Promise<void> {
-  assertOnlyOptions(args, new Set(['port']));
+  assertOnlyOptions(args, new Set(['port', 'open']));
   const rawPort = getStringOption(args, 'port');
   const parsedPort = rawPort ? Number(rawPort) : undefined;
   if (
@@ -1075,7 +1082,11 @@ async function runWeb(ctx: CommandContext, args: ParsedArgv): Promise<void> {
   ) {
     throw new CliError('INVALID_ARGS', `Invalid port: ${rawPort}`);
   }
+  const shouldOpen = getBooleanOption(args, 'open') === true;
   const server = await startWebServer({ port: parsedPort });
+  if (shouldOpen) {
+    await openInBrowser(server.url);
+  }
   emitSuccess(ctx, server, (payload) => `ok url=${payload.url}`);
 }
 
