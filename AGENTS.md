@@ -304,6 +304,16 @@ Include a scope when it clarifies context: `feat(cli): add batch mode`, `fix(can
 
 Append `!` before the colon for breaking changes: `feat!: remove legacy config format`, `refactor(cli)!: new arg syntax`.
 
+## ACP Session Task Tracking
+
+When spawned via ACP (Agentic Client Protocol):
+
+1. Break multi-step work into a visible checklist at the start of the task.
+2. Signal each item as in-progress before starting it and completed immediately after.
+3. The final item marked completed serves as the task-completion checkpoint for the orchestrator.
+
+Use whatever task/todo mechanism your agent runtime provides. The key requirement is that progress is externally observable — not just internal reasoning.
+
 ## Notes For Agents
 
 - Do not assume the old IndexedDB architecture described in earlier docs still applies.
