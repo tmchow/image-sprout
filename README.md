@@ -362,6 +362,17 @@ image-sprout analyze --project my-blog --target both
 
 These are shorthand for `project generate` and `project derive`, respectively.
 
+## Agent Skills
+
+Image Sprout ships skill files for AI agent runtimes:
+
+| Runtime | Path | Distribution |
+|---------|------|--------------|
+| OpenClaw / ClawHub | `skills/openclaw/SKILL.md` | Published to ClawHub directly |
+| Claude Code + Codex | `skills/agents/SKILL.md` | Via tmc-marketplace |
+
+The skills cover the full workflow — project setup, reference management, guide derivation, generation, and result inspection — so agents can use Image Sprout without additional documentation.
+
 ## CLI For Agents
 
 The CLI is the better mode for AI agents because it:
