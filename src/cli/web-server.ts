@@ -468,6 +468,7 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
       const requestBody = body as { target?: DeriveTarget; persist?: boolean };
       const target = parseTarget(requestBody.target);
       const persist = requestBody.persist !== false;
+      const analysisModel = config.analysisModel;
 
       const styleRefs = target === 'subject' ? [] : getProjectReferenceDataUrlsByTarget(projectId, 'style');
       const subjectRefs = target === 'style' ? [] : getProjectReferenceDataUrlsByTarget(projectId, 'subject');
@@ -486,21 +487,21 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
       let subjectGuide: string | undefined;
 
       if (target === 'both' && JSON.stringify(styleRefs) === JSON.stringify(subjectRefs)) {
-        const result = await analyzeReferenceImages(styleRefs, apiKey);
+        const result = await analyzeReferenceImages(styleRefs, apiKey, undefined, analysisModel);
         visualStyle = result.visualStyle;
         subjectGuide = result.subjectGuide;
       } else if (target === 'both') {
         const [styleResult, subjectResult] = await Promise.all([
-          analyzeReferenceImages(styleRefs, apiKey),
-          analyzeReferenceImages(subjectRefs, apiKey),
+          analyzeReferenceImages(styleRefs, apiKey, undefined, analysisModel),
+          analyzeReferenceImages(subjectRefs, apiKey, undefined, analysisModel),
         ]);
         visualStyle = styleResult.visualStyle;
         subjectGuide = subjectResult.subjectGuide;
       } else if (target === 'style') {
-        const result = await analyzeReferenceImages(styleRefs, apiKey);
+        const result = await analyzeReferenceImages(styleRefs, apiKey, undefined, analysisModel);
         visualStyle = result.visualStyle;
       } else {
-        const result = await analyzeReferenceImages(subjectRefs, apiKey);
+        const result = await analyzeReferenceImages(subjectRefs, apiKey, undefined, analysisModel);
         subjectGuide = result.subjectGuide;
       }
 

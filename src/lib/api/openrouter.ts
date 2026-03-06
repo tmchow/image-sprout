@@ -1,7 +1,7 @@
 import type { GenerationRequest, GenerationResult, SizePreset } from '../types';
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const ANALYSIS_MODEL = 'google/gemini-3.1-flash-image-preview';
+export const DEFAULT_ANALYSIS_MODEL = 'google/gemini-3.1-flash-image-preview';
 const REFERER = 'https://image-sprout.app';
 
 /** OpenAI models use a `size` param (WxH) instead of `image_config.aspect_ratio`. */
@@ -292,7 +292,8 @@ export interface AnalysisResult {
 export async function analyzeReferenceImages(
   imageDataUrls: string[],
   apiKey: string,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  analysisModel?: string
 ): Promise<AnalysisResult> {
   validateApiKey(apiKey);
 
@@ -315,7 +316,7 @@ subjectGuide: Describe ONLY the recurring subject(s) that appear across images â
   };
 
   const content: ContentPart[] = [...imageParts, textPart];
-  const responseData = await sendRequest(content, ['text'], apiKey, ANALYSIS_MODEL, undefined, signal);
+  const responseData = await sendRequest(content, ['text'], apiKey, analysisModel ?? DEFAULT_ANALYSIS_MODEL, undefined, signal);
 
   const text = extractTextFromResponse(responseData);
   if (!text) {

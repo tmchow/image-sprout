@@ -5,6 +5,7 @@ export interface CliConfig {
   model: ImageModel;
   sizePreset: SizePreset;
   imageCount: number;
+  analysisModel?: string;
 }
 
 export interface PublicCliConfig {
@@ -12,6 +13,7 @@ export interface PublicCliConfig {
   model: ImageModel;
   sizePreset: SizePreset;
   imageCount: number;
+  analysisModel?: string;
 }
 
 export interface CommandContext {

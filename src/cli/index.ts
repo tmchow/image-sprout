@@ -275,7 +275,7 @@ function parseCount(input: string | undefined, fallback: number): number {
   }
   const value = Number(input);
   if (!SUPPORTED_IMAGE_COUNTS.includes(value as (typeof SUPPORTED_IMAGE_COUNTS)[number])) {
-    throw new CliError('INVALID_ARGS', 'count must be one of: 2, 4, 6', [
+    throw new CliError('INVALID_ARGS', `count must be one of: ${SUPPORTED_IMAGE_COUNTS.join(', ')}`, [
       'Example: image-sprout generate --count 4 ...',
     ]);
   }
@@ -599,11 +599,13 @@ async function runProjectDerive(
   args: ParsedArgv,
   projectInput: string | undefined
 ): Promise<void> {
-  assertOnlyOptions(args, new Set(['project', 'api-key', 'target']));
+  assertOnlyOptions(args, new Set(['project', 'api-key', 'target', 'analysis-model']));
 
+  const config = readConfig();
   const projectId = resolveProjectId(projectInput ?? projectFlag(args));
   const apiKey = requireApiKey(getStringOption(args, 'api-key'));
   const target = parseDeriveTarget(getStringOption(args, 'target'));
+  const analysisModel = getStringOption(args, 'analysis-model') ?? config.analysisModel;
 
   const styleRefDataUrls =
     target === 'subject' ? [] : getProjectReferenceDataUrlsByTarget(projectId, 'style');
@@ -634,21 +636,21 @@ async function runProjectDerive(
   let nextSubject: string | undefined;
 
   if (target === 'both' && JSON.stringify(styleRefDataUrls) === JSON.stringify(subjectRefDataUrls)) {
-    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey);
+    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey, undefined, analysisModel);
     nextStyle = analysis.visualStyle;
     nextSubject = analysis.subjectGuide;
   } else if (target === 'both') {
     const [styleAnalysis, subjectAnalysis] = await Promise.all([
-      analyzeReferenceImages(styleRefDataUrls, apiKey),
-      analyzeReferenceImages(subjectRefDataUrls, apiKey),
+      analyzeReferenceImages(styleRefDataUrls, apiKey, undefined, analysisModel),
+      analyzeReferenceImages(subjectRefDataUrls, apiKey, undefined, analysisModel),
     ]);
     nextStyle = styleAnalysis.visualStyle;
     nextSubject = subjectAnalysis.subjectGuide;
   } else if (target === 'style') {
-    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey);
+    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey, undefined, analysisModel);
     nextStyle = analysis.visualStyle;
   } else {
-    const analysis = await analyzeReferenceImages(subjectRefDataUrls, apiKey);
+    const analysis = await analyzeReferenceImages(subjectRefDataUrls, apiKey, undefined, analysisModel);
     nextSubject = analysis.subjectGuide;
   }
 
@@ -979,13 +981,17 @@ function runConfig(ctx: CommandContext, args: ParsedArgv, positionals: string[])
           config: data,
         },
         (payload) => {
-          return [
+          const lines = [
             `ok path=${payload.path}`,
             `apiKey=${payload.config.apiKeyConfigured ? '[set]' : '[empty]'}`,
             `model=${payload.config.model}`,
             `sizePreset=${payload.config.sizePreset}`,
             `imageCount=${payload.config.imageCount}`,
-          ].join('\n');
+          ];
+          if (payload.config.analysisModel) {
+            lines.push(`analysisModel=${payload.config.analysisModel}`);
+          }
+          return lines.join('\n');
         }
       );
       return;
