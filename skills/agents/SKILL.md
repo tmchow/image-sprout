@@ -75,11 +75,22 @@ npx image-sprout project derive <name> --target both   # or: style, subject
 # Check readiness before generating
 npx image-sprout project status <name> --json
 
-# Generate
+# Generate (--count controls images per run: 1, 2, 4, 6; default is 4)
 npx image-sprout project generate <name> --prompt "hero in neon rain"
+npx image-sprout project generate <name> --prompt "hero in neon rain" --count 1
 
 # Inspect results
 npx image-sprout run latest --project <name> --json
+
+# Delete a session and all its runs/images
+npx image-sprout session delete --project <name> <session-id>
+```
+
+Top-level aliases:
+
+```bash
+npx image-sprout generate --project <name> --prompt "hero in neon rain"   # same as project generate
+npx image-sprout analyze --project <name> --target both                    # same as project derive
 ```
 
 ## 5. JSON Output — the Agent Pattern
@@ -110,7 +121,9 @@ This is how agents hand image paths to downstream tools. Run images land in imag
 The web app runs over the same on-disk store as the CLI. Agents won't use it directly, but should surface it to users when interactive review is appropriate.
 
 ```bash
-npx image-sprout web    # launches local app, opens in browser
+npx image-sprout web              # launches local app
+npx image-sprout web --open       # also opens in default browser
+npx image-sprout web --port 8080  # custom port (default: 4310)
 ```
 
 Useful for:
@@ -129,4 +142,14 @@ npx image-sprout model add openai/gpt-5-image
 npx image-sprout model restore-defaults
 ```
 
-Default model is **Nano Banana 2** (`google/gemini-3.1-flash-image-preview`). Custom models must accept image input and produce image output via OpenRouter.
+Default generation model is **Nano Banana 2** (`google/gemini-3.1-flash-image-preview`). Custom models must accept image input and produce image output via OpenRouter.
+
+Guide derivation uses a separate configurable analysis model (default: `google/gemini-3.1-flash-image-preview`):
+
+```bash
+# Set a persistent analysis model
+npx image-sprout config set analysisModel google/gemini-2.5-flash
+
+# Override per-derive
+npx image-sprout project derive <name> --target both --analysis-model google/gemini-2.5-flash
+```

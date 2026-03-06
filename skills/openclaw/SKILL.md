@@ -56,11 +56,22 @@ image-sprout project derive <name> --target both   # or: style, subject
 # Check readiness before generating
 image-sprout project status <name> --json
 
-# Generate
+# Generate (--count controls images per run: 1, 2, 4, 6; default is 4)
 image-sprout project generate <name> --prompt "hero in neon rain"
+image-sprout project generate <name> --prompt "hero in neon rain" --count 1
 
 # Inspect results
 image-sprout run latest --project <name> --json
+
+# Delete a session and all its runs/images
+image-sprout session delete --project <name> <session-id>
+```
+
+Top-level aliases for convenience:
+
+```bash
+image-sprout generate --project <name> --prompt "hero in neon rain"   # same as project generate
+image-sprout analyze --project <name> --target both                    # same as project derive
 ```
 
 ## 4. JSON Output — the Agent Pattern
@@ -91,7 +102,9 @@ This is how agents hand image paths to downstream tools. Run images land in imag
 The web app runs over the same on-disk store as the CLI. Agents won't use it directly, but should know it exists so they can offer it to users when interactive review is appropriate.
 
 ```bash
-image-sprout web    # launches local app, opens in browser
+image-sprout web              # launches local app
+image-sprout web --open       # also opens in default browser
+image-sprout web --port 8080  # custom port (default: 4310)
 ```
 
 Useful for:
@@ -110,4 +123,14 @@ image-sprout model add openai/gpt-5-image
 image-sprout model restore-defaults
 ```
 
-Default model is **Nano Banana 2** (`google/gemini-3.1-flash-image-preview`). Custom models must accept image input and produce image output via OpenRouter.
+Default generation model is **Nano Banana 2** (`google/gemini-3.1-flash-image-preview`). Custom models must accept image input and produce image output via OpenRouter.
+
+Guide derivation uses a separate configurable analysis model (default: `google/gemini-3.1-flash-image-preview`):
+
+```bash
+# Set a persistent analysis model
+image-sprout config set analysisModel google/gemini-2.5-flash
+
+# Override per-derive
+image-sprout project derive <name> --target both --analysis-model google/gemini-2.5-flash
+```
