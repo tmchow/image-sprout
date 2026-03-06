@@ -1,0 +1,33 @@
+{
+  "name": "image-sprout",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "image-sprout": "dist/cli/index.js"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:cli": "vite build --config vite.cli.config.ts",
+    "preview": "vite preview",
+    "check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "web": "npm run build && npm run build:cli && node dist/cli/index.js web"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@tailwindcss/vite": "^4.1.0",
+    "@testing-library/svelte": "^5.2.0",
+    "@tsconfig/svelte": "^5.0.6",
+    "@types/node": "^24.10.1",
+    "jsdom": "^26.0.0",
+    "svelte": "^5.45.2",
+    "svelte-check": "^4.3.4",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1",
+    "vitest": "^3.1.0"
+  }
+}
