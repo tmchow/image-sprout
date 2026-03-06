@@ -333,10 +333,10 @@ describe('SizePresets', () => {
 
   describe('GenerationForm image count selector', () => {
     describe('Image count selector updates store', () => {
-    it('renders image count options for 2, 4, and 6', () => {
+    it('renders image count options for 1, 2, 4, and 6', () => {
       const { container } = render(GenerationForm)
       const countOptions = container.querySelectorAll('[data-testid^="image-count-"]')
-      expect(countOptions.length).toBe(3)
+      expect(countOptions.length).toBe(4)
     })
 
     it('highlights the active image count', () => {
