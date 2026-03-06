@@ -1,7 +1,5 @@
 #!/usr/bin/env node
 
-import { pathToFileURL } from 'node:url';
-
 import { analyzeReferenceImages, generateImages } from '../lib/api/openrouter';
 import { SUPPORTED_IMAGE_COUNTS, type ImageModel, type SizePreset } from '../lib/types';
 import { getBooleanOption, getStringOption, hasOption, parseArgv } from './argv';
@@ -1157,16 +1155,6 @@ export function handleCliError(error: unknown, argv: string[]): number {
   return cliError.exitCode;
 }
 
-function isDirectExecution(): boolean {
-  const entry = process.argv[1];
-  if (!entry) {
-    return false;
-  }
-  return import.meta.url === pathToFileURL(entry).href;
-}
-
-if (isDirectExecution()) {
-  main().catch((error: unknown) => {
-    process.exitCode = handleCliError(error, process.argv.slice(2));
-  });
-}
+main().catch((error: unknown) => {
+  process.exitCode = handleCliError(error, process.argv.slice(2));
+});
