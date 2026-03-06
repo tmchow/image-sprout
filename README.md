@@ -81,6 +81,18 @@ image-sprout web
 
 This starts the interactive local app backed by the same on-disk store the CLI uses.
 
+Pass `--open` to automatically open the app in your default browser:
+
+```bash
+image-sprout web --open
+```
+
+Pass `--port` to use a custom port (default is 4310):
+
+```bash
+image-sprout web --port 8080
+```
+
 ### CLI
 
 Run CLI commands directly:
@@ -143,6 +155,22 @@ image-sprout model list
 image-sprout model add openai/gpt-5-image
 image-sprout model set-default google/gemini-3.1-flash-image-preview
 image-sprout model restore-defaults
+```
+
+### Analysis Model
+
+Guide derivation uses a separate analysis model. The default is `google/gemini-3.1-flash-image-preview`.
+
+To use a different model for derivation:
+
+```bash
+image-sprout config set analysisModel <openrouter-model-id>
+```
+
+You can also override it per-command:
+
+```bash
+image-sprout project derive my-blog --target both --analysis-model google/gemini-2.5-flash
 ```
 
 ## Recommended Project Setup
@@ -208,6 +236,8 @@ Recommended mapping:
 - subject-only project: derive subject
 - style-and-subject project: derive both
 
+When deriving both guides from different reference sets, both analyses run in parallel.
+
 Review the derived text before saving it.
 
 ### 5. Save The Project Profile
@@ -221,7 +251,7 @@ Project Settings does not auto-save guide edits. Save after:
 
 Once the project is configured, generate from the main canvas.
 
-The main prompt is the per-run request.
+The main prompt is the per-run request. The image count can be 1, 2, 4, or 6.
 
 Examples:
 - `a flower in a forest`
@@ -299,6 +329,12 @@ image-sprout project status my-blog
 image-sprout project generate my-blog --prompt "a flower in a forest"
 ```
 
+Generate a single image:
+
+```bash
+image-sprout project generate my-blog --prompt "a flower in a forest" --count 1
+```
+
 ### 6. Inspect Sessions And Runs
 
 ```bash
@@ -306,6 +342,25 @@ image-sprout session list --project my-blog
 image-sprout run list --project my-blog
 image-sprout run latest --project my-blog --json
 ```
+
+### 7. Delete Sessions
+
+```bash
+image-sprout session delete --project my-blog <session-id>
+```
+
+Deleting a session removes the session and all of its runs and generated images.
+
+## CLI Aliases
+
+For convenience, `generate` and `analyze` are available as top-level aliases:
+
+```bash
+image-sprout generate --project my-blog --prompt "a flower in a forest"
+image-sprout analyze --project my-blog --target both
+```
+
+These are shorthand for `project generate` and `project derive`, respectively.
 
 ## CLI For Agents
 
@@ -329,7 +384,29 @@ image-sprout run latest --project my-blog --json
 image-sprout help
 image-sprout project --help
 image-sprout ref --help
+image-sprout session --help
 image-sprout model --help
+image-sprout config --help
+```
+
+## Configuration
+
+The following config keys are available:
+
+| Key | Description | Default |
+|-----|-------------|---------|
+| `apiKey` | OpenRouter API key | (empty) |
+| `model` | Default generation model | `google/gemini-3.1-flash-image-preview` |
+| `sizePreset` | Default image aspect ratio (`16:9`, `1:1`, `9:16`) | `16:9` |
+| `imageCount` | Default number of images per run (`1`, `2`, `4`, `6`) | `4` |
+| `analysisModel` | Model used for guide derivation | `google/gemini-3.1-flash-image-preview` |
+
+```bash
+image-sprout config show
+image-sprout config set <key> <value>
+image-sprout config get <key>
+image-sprout config unset <key>
+image-sprout config path
 ```
 
 ## Development
@@ -339,8 +416,6 @@ For local repo development:
 ```bash
 npm install
 ```
-
-
 
 ```bash
 npm run dev         # Vite dev server

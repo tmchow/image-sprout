@@ -116,10 +116,19 @@ function sendJson(res: ServerResponse, status: number, payload: unknown): void {
   res.end(JSON.stringify(payload));
 }
 
+const CLI_ERROR_TO_HTTP: Record<string, number> = {
+  NOT_FOUND: 404,
+  AUTH_REQUIRED: 401,
+  API_ERROR: 502,
+  IO_ERROR: 500,
+  INTERNAL_ERROR: 500,
+  PROJECT_NOT_READY: 409,
+};
+
 export function toApiErrorResponse(error: unknown): ApiResponse {
   if (error instanceof CliError) {
     return {
-      status: error.exitCode === 1 ? 404 : 400,
+      status: CLI_ERROR_TO_HTTP[error.code] ?? 400,
       payload: {
         error: {
           code: error.code,
@@ -459,6 +468,7 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
       const requestBody = body as { target?: DeriveTarget; persist?: boolean };
       const target = parseTarget(requestBody.target);
       const persist = requestBody.persist !== false;
+      const analysisModel = config.analysisModel;
 
       const styleRefs = target === 'subject' ? [] : getProjectReferenceDataUrlsByTarget(projectId, 'style');
       const subjectRefs = target === 'style' ? [] : getProjectReferenceDataUrlsByTarget(projectId, 'subject');
@@ -477,18 +487,22 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
       let subjectGuide: string | undefined;
 
       if (target === 'both' && JSON.stringify(styleRefs) === JSON.stringify(subjectRefs)) {
-        const result = await analyzeReferenceImages(styleRefs, apiKey);
+        const result = await analyzeReferenceImages(styleRefs, apiKey, undefined, analysisModel);
         visualStyle = result.visualStyle;
         subjectGuide = result.subjectGuide;
+      } else if (target === 'both') {
+        const [styleResult, subjectResult] = await Promise.all([
+          analyzeReferenceImages(styleRefs, apiKey, undefined, analysisModel),
+          analyzeReferenceImages(subjectRefs, apiKey, undefined, analysisModel),
+        ]);
+        visualStyle = styleResult.visualStyle;
+        subjectGuide = subjectResult.subjectGuide;
+      } else if (target === 'style') {
+        const result = await analyzeReferenceImages(styleRefs, apiKey, undefined, analysisModel);
+        visualStyle = result.visualStyle;
       } else {
-        if (target === 'style' || target === 'both') {
-          const result = await analyzeReferenceImages(styleRefs, apiKey);
-          visualStyle = result.visualStyle;
-        }
-        if (target === 'subject' || target === 'both') {
-          const result = await analyzeReferenceImages(subjectRefs, apiKey);
-          subjectGuide = result.subjectGuide;
-        }
+        const result = await analyzeReferenceImages(subjectRefs, apiKey, undefined, analysisModel);
+        subjectGuide = result.subjectGuide;
       }
 
       if (persist) {
@@ -498,9 +512,7 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
         });
       }
 
-      const status = persist
-        ? getProjectStatus(projectId)
-        : getProjectStatus(projectId);
+      const status = getProjectStatus(projectId);
       const project = showProject(projectId);
       return {
         status: 200,

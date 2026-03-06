@@ -37,14 +37,33 @@
     await loadSession(sessionId);
   }
 
-  async function handleDeleteSession(e: MouseEvent, sessionId: string) {
+  let confirmingDeleteId = $state<string | null>(null);
+  let confirmTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function requestDeleteSession(e: MouseEvent, sessionId: string) {
     e.stopPropagation();
+    if (confirmTimer) clearTimeout(confirmTimer);
+    confirmingDeleteId = sessionId;
+    confirmTimer = setTimeout(() => {
+      confirmingDeleteId = null;
+    }, 3000);
+  }
+
+  async function confirmDeleteSession(e: MouseEvent, sessionId: string) {
+    e.stopPropagation();
+    if (confirmTimer) clearTimeout(confirmTimer);
+    confirmingDeleteId = null;
     await deleteSessionFromGeneration(sessionId);
-    // Also remove from the sessions list
     const projectId = activeProjectId.value;
     if (projectId) {
       await loadSessions(projectId);
     }
+  }
+
+  function cancelDeleteSession(e: MouseEvent) {
+    e.stopPropagation();
+    if (confirmTimer) clearTimeout(confirmTimer);
+    confirmingDeleteId = null;
   }
 
   function handleNewSession() {
@@ -97,16 +116,38 @@
           <p class="text-sm text-slate-700 truncate">{session.prompt}</p>
           <p class="text-xs text-slate-400">{formatRelativeTime(session.updatedAt)}</p>
         </div>
-        <button
-          data-testid="delete-session-{session.id}"
-          class="ml-2 p-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-          onclick={(e) => handleDeleteSession(e, session.id)}
-          aria-label="Delete session"
-        >
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        {#if confirmingDeleteId === session.id}
+          <div class="ml-2 flex items-center gap-1" data-testid="confirm-delete-{session.id}">
+            <button
+              data-testid="confirm-delete-yes-{session.id}"
+              class="px-1.5 py-0.5 text-xs font-medium text-red-600 bg-red-50 rounded hover:bg-red-100 transition-colors cursor-pointer"
+              onclick={(e) => confirmDeleteSession(e, session.id)}
+            >
+              Delete?
+            </button>
+            <button
+              data-testid="confirm-delete-no-{session.id}"
+              class="p-0.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+              onclick={(e) => cancelDeleteSession(e)}
+              aria-label="Cancel delete"
+            >
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        {:else}
+          <button
+            data-testid="delete-session-{session.id}"
+            class="ml-2 p-1 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+            onclick={(e) => requestDeleteSession(e, session.id)}
+            aria-label="Delete session"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        {/if}
       </div>
     {/each}
   </div>

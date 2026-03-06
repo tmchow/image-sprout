@@ -44,6 +44,8 @@ Both the CLI and the web app read and write the same:
 
 2. Web mode
 - entrypoint: `image-sprout web` or `npm run web`
+- `--open` opens the app in the default browser
+- `--port <number>` sets a custom port (default: 4310)
 - launches the Svelte app against the same shared project/config store
 - browser talks to the local `/api/*` bridge backed by Node
 
@@ -106,6 +108,10 @@ Projects can derive:
 - `visualStyle`
 - `subjectGuide`
 
+Guide derivation uses a configurable analysis model (default: `google/gemini-3.1-flash-image-preview`).
+The model is set via `config set analysisModel <model-id>` or the `--analysis-model` flag on derive.
+When deriving both guides from different reference sets, both API calls run in parallel.
+
 Projects can also store manual `instructions` for persistent generation constraints.
 Examples:
 - watermark requirements
@@ -164,6 +170,10 @@ Primary commands:
 - `web`
 - `help`
 
+Aliases:
+- `generate` — shorthand for `project generate`
+- `analyze` — shorthand for `project derive`
+
 Important project flow:
 ```bash
 image-sprout project create comic-hero
@@ -172,9 +182,32 @@ image-sprout project derive comic-hero --target both
 image-sprout project generate comic-hero --prompt "hero running through rain"
 ```
 
+### Session Management
+Sessions can be listed, shown, and deleted from the CLI:
+```bash
+image-sprout session list --project comic-hero
+image-sprout session show --project comic-hero <session-id>
+image-sprout session delete --project comic-hero <session-id>
+```
+
+Deleting a session removes its runs and generated images.
+
+### Image Count
+Supported image counts per generation run: 1, 2, 4, 6.
+The default is 4. Override per-run with `--count` or set the default with `config set imageCount`.
+
 ### Security
 - never echo the raw API key in normal output
 - `config show` and `config get apiKey` expose only public/masked status
+
+## Configuration
+
+Config keys:
+- `apiKey` — OpenRouter API key
+- `model` — default generation model
+- `sizePreset` — default aspect ratio (`16:9`, `1:1`, `9:16`)
+- `imageCount` — default images per run (`1`, `2`, `4`, `6`)
+- `analysisModel` — model used for guide derivation (optional; defaults to `google/gemini-3.1-flash-image-preview`)
 
 ## Web App Conventions
 
@@ -186,6 +219,17 @@ Important UX concepts:
 - deriving guides in the web app is local until the user saves edits
 - sessions/runs are explicit in the sidebar and run strip
 - the canvas is for comparison/review, not hidden state
+
+## Web Server HTTP Status Codes
+
+The local bridge maps CLI errors to HTTP status codes:
+- `NOT_FOUND` → 404
+- `AUTH_REQUIRED` → 401
+- `API_ERROR` → 502
+- `IO_ERROR` → 500
+- `INTERNAL_ERROR` → 500
+- `PROJECT_NOT_READY` → 409
+- `INVALID_ARGS`, `CONFIG_ERROR`, and others → 400
 
 ## OpenRouter Integration
 
@@ -199,6 +243,12 @@ Key rules:
 - custom models must be valid OpenRouter models that:
   - accept image input
   - produce image output
+
+Guide derivation:
+- uses a configurable analysis model (exported as `DEFAULT_ANALYSIS_MODEL`)
+- accepts an optional `analysisModel` parameter to override the default
+- extracts JSON from markdown-fenced responses when the model wraps output in code blocks
+- logs a warning when falling back to raw text parsing
 
 Prompt layers currently map to:
 - `visualStyle`

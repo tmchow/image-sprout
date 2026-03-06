@@ -23,6 +23,7 @@ import {
   createProject,
   createRun,
   deleteProject,
+  deleteSession,
   getProjectStatus,
   getRun,
   getSession,
@@ -274,7 +275,7 @@ function parseCount(input: string | undefined, fallback: number): number {
   }
   const value = Number(input);
   if (!SUPPORTED_IMAGE_COUNTS.includes(value as (typeof SUPPORTED_IMAGE_COUNTS)[number])) {
-    throw new CliError('INVALID_ARGS', 'count must be one of: 2, 4, 6', [
+    throw new CliError('INVALID_ARGS', `count must be one of: ${SUPPORTED_IMAGE_COUNTS.join(', ')}`, [
       'Example: image-sprout generate --count 4 ...',
     ]);
   }
@@ -598,11 +599,13 @@ async function runProjectDerive(
   args: ParsedArgv,
   projectInput: string | undefined
 ): Promise<void> {
-  assertOnlyOptions(args, new Set(['project', 'api-key', 'target']));
+  assertOnlyOptions(args, new Set(['project', 'api-key', 'target', 'analysis-model']));
 
+  const config = readConfig();
   const projectId = resolveProjectId(projectInput ?? projectFlag(args));
   const apiKey = requireApiKey(getStringOption(args, 'api-key'));
   const target = parseDeriveTarget(getStringOption(args, 'target'));
+  const analysisModel = getStringOption(args, 'analysis-model') ?? config.analysisModel;
 
   const styleRefDataUrls =
     target === 'subject' ? [] : getProjectReferenceDataUrlsByTarget(projectId, 'style');
@@ -633,18 +636,22 @@ async function runProjectDerive(
   let nextSubject: string | undefined;
 
   if (target === 'both' && JSON.stringify(styleRefDataUrls) === JSON.stringify(subjectRefDataUrls)) {
-    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey);
+    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey, undefined, analysisModel);
     nextStyle = analysis.visualStyle;
     nextSubject = analysis.subjectGuide;
+  } else if (target === 'both') {
+    const [styleAnalysis, subjectAnalysis] = await Promise.all([
+      analyzeReferenceImages(styleRefDataUrls, apiKey, undefined, analysisModel),
+      analyzeReferenceImages(subjectRefDataUrls, apiKey, undefined, analysisModel),
+    ]);
+    nextStyle = styleAnalysis.visualStyle;
+    nextSubject = subjectAnalysis.subjectGuide;
+  } else if (target === 'style') {
+    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey, undefined, analysisModel);
+    nextStyle = analysis.visualStyle;
   } else {
-    if (target === 'style' || target === 'both') {
-      const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey);
-      nextStyle = analysis.visualStyle;
-    }
-    if (target === 'subject' || target === 'both') {
-      const analysis = await analyzeReferenceImages(subjectRefDataUrls, apiKey);
-      nextSubject = analysis.subjectGuide;
-    }
+    const analysis = await analyzeReferenceImages(subjectRefDataUrls, apiKey, undefined, analysisModel);
+    nextSubject = analysis.subjectGuide;
   }
 
   updateProjectGuides(projectId, {
@@ -770,7 +777,7 @@ async function runProjectGenerate(
 function runSessions(ctx: CommandContext, args: ParsedArgv, positionals: string[]): void {
   assertOnlyOptions(args, new Set(['project']));
   const projectId = resolveProjectId(projectFlag(args));
-  const sub = requireSubcommand('session', positionals[1] ?? 'list', ['list', 'show']);
+  const sub = requireSubcommand('session', positionals[1] ?? 'list', ['list', 'show', 'delete']);
   switch (sub) {
     case 'list': {
       const data = limitItems(listSessions(projectId), ctx);
@@ -797,6 +804,15 @@ function runSessions(ctx: CommandContext, args: ParsedArgv, positionals: string[
         ];
         return lines.join('\n');
       });
+      return;
+    }
+    case 'delete': {
+      const sessionId = positionals[2];
+      if (!sessionId) {
+        throw new CliError('INVALID_ARGS', 'session delete requires <session-id>');
+      }
+      deleteSession(projectId, sessionId);
+      emitSuccess(ctx, { projectId, sessionId }, (payload) => `ok project=${payload.projectId} deleted=${payload.sessionId}`);
       return;
     }
   }
@@ -965,13 +981,17 @@ function runConfig(ctx: CommandContext, args: ParsedArgv, positionals: string[])
           config: data,
         },
         (payload) => {
-          return [
+          const lines = [
             `ok path=${payload.path}`,
             `apiKey=${payload.config.apiKeyConfigured ? '[set]' : '[empty]'}`,
             `model=${payload.config.model}`,
             `sizePreset=${payload.config.sizePreset}`,
             `imageCount=${payload.config.imageCount}`,
-          ].join('\n');
+          ];
+          if (payload.config.analysisModel) {
+            lines.push(`analysisModel=${payload.config.analysisModel}`);
+          }
+          return lines.join('\n');
         }
       );
       return;
@@ -1051,8 +1071,15 @@ function runVersion(ctx: CommandContext): void {
   emitSuccess(ctx, { version: ctx.version }, (payload) => payload.version);
 }
 
+async function openInBrowser(url: string): Promise<void> {
+  const { platform } = process;
+  const { exec } = await import('node:child_process');
+  const cmd = platform === 'darwin' ? 'open' : platform === 'win32' ? 'start' : 'xdg-open';
+  exec(`${cmd} ${url}`);
+}
+
 async function runWeb(ctx: CommandContext, args: ParsedArgv): Promise<void> {
-  assertOnlyOptions(args, new Set(['port']));
+  assertOnlyOptions(args, new Set(['port', 'open']));
   const rawPort = getStringOption(args, 'port');
   const parsedPort = rawPort ? Number(rawPort) : undefined;
   if (
@@ -1061,7 +1088,11 @@ async function runWeb(ctx: CommandContext, args: ParsedArgv): Promise<void> {
   ) {
     throw new CliError('INVALID_ARGS', `Invalid port: ${rawPort}`);
   }
+  const shouldOpen = getBooleanOption(args, 'open') === true;
   const server = await startWebServer({ port: parsedPort });
+  if (shouldOpen) {
+    await openInBrowser(server.url);
+  }
   emitSuccess(ctx, server, (payload) => `ok url=${payload.url}`);
 }
 

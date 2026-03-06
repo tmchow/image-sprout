@@ -100,7 +100,7 @@ describe('cli commands', () => {
     expect(result.stderr).toEqual([]);
     expect(result.stdout).toHaveLength(1);
     expect(result.stdout[0]).toContain('image-sprout <command> [options]');
-    expect(result.stdout[0]).toContain('project   Manage projects and generation workflow');
+    expect(result.stdout[0]).toContain('project    Manage projects and generation workflow');
     expect(() => JSON.parse(result.stdout[0])).toThrow();
   });
 

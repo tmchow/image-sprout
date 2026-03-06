@@ -1,14 +1,18 @@
 export const QUICK_HELP = `image-sprout <command> [options]
 
 Commands:
-  project   Manage projects and generation workflow
-  ref       Manage project reference images
-  session   Inspect project sessions
-  run       Inspect saved runs
-  model     Manage available image models
-  config    Manage local configuration
-  web       Launch the interactive local web app
-  help      Show command help
+  project    Manage projects and generation workflow
+  ref        Manage project reference images
+  session    Inspect project sessions
+  run        Inspect saved runs
+  model      Manage available image models
+  config     Manage local configuration
+  web        Launch the interactive local web app
+  help       Show command help
+
+Aliases:
+  generate   Shorthand for: project generate
+  analyze    Shorthand for: project derive
 
 Options:
   --json       Output JSON
@@ -58,17 +62,19 @@ Alias for:
 const GENERATE_HELP = `image-sprout generate [--project <name-or-id>] --prompt <text>|--prompt-file <path> [options]
 
 Alias for:
-  image-sprout project generate <project> --prompt <text>|--prompt-file <path> [--session <id>] [--feedback <text>] [--model <id>] [--size <16:9|1:1|9:16>] [--count <2|4|6>] [--force]`;
+  image-sprout project generate <project> --prompt <text>|--prompt-file <path> [--session <id>] [--feedback <text>] [--model <id>] [--size <16:9|1:1|9:16>] [--count <1|2|4|6>] [--force]`;
 
 const SESSION_HELP = `image-sprout session <subcommand> [options]
 
 Subcommands:
   list       List sessions for a project
   show       Show one session
+  delete     Delete a session and its runs
 
 Examples:
   image-sprout session list --project comic-hero
-  image-sprout session show --project comic-hero <session-id>`;
+  image-sprout session show --project comic-hero <session-id>
+  image-sprout session delete --project comic-hero <session-id>`;
 
 const RUN_HELP = `image-sprout run <subcommand> [options]
 
@@ -82,9 +88,13 @@ Examples:
   image-sprout run latest --project comic-hero
   image-sprout run show --project comic-hero <run-id>`;
 
-const WEB_HELP = `image-sprout web [--port <number>]
+const WEB_HELP = `image-sprout web [--port <number>] [--open]
 
-Launch the interactive local web app against the shared on-disk project store.`;
+Launch the interactive local web app against the shared on-disk project store.
+
+Options:
+  --port <number>  Port to listen on (default: 4310)
+  --open           Open the app in the default browser`;
 
 const MODELS_HELP = `image-sprout model <subcommand> [options]
 

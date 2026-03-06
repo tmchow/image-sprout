@@ -8,7 +8,7 @@ import { SUPPORTED_IMAGE_COUNTS } from '../lib/types';
 export { getConfigPath } from './paths';
 import type { CliConfig, PublicCliConfig } from './types';
 
-const CONFIG_KEYS = new Set(['apiKey', 'model', 'sizePreset', 'imageCount']);
+const CONFIG_KEYS = new Set(['apiKey', 'model', 'sizePreset', 'imageCount', 'analysisModel']);
 
 function defaultConfig(): CliConfig {
   return {
@@ -93,7 +93,7 @@ function normalizeKey(input: string): keyof CliConfig {
   }
 
   throw new CliError('INVALID_ARGS', `Unknown config key: ${input}`, [
-    'Valid keys: apiKey, model, sizePreset, imageCount',
+    'Valid keys: apiKey, model, sizePreset, imageCount, analysisModel',
   ]);
 }
 
@@ -120,11 +120,18 @@ function validateSetValue(key: keyof CliConfig, rawValue: string): CliConfig[key
     case 'imageCount': {
       const value = Number(rawValue);
       if (!SUPPORTED_IMAGE_COUNTS.includes(value as (typeof SUPPORTED_IMAGE_COUNTS)[number])) {
-        throw new CliError('INVALID_ARGS', 'imageCount must be one of: 2, 4, 6', [
+        throw new CliError('INVALID_ARGS', `imageCount must be one of: ${SUPPORTED_IMAGE_COUNTS.join(', ')}`, [
           'Example: image-sprout config set imageCount 4',
         ]);
       }
       return value;
+    }
+    case 'analysisModel': {
+      const trimmed = rawValue.trim();
+      if (!trimmed) {
+        throw new CliError('INVALID_ARGS', 'analysisModel must be a non-empty model ID');
+      }
+      return trimmed;
     }
     default:
       throw new CliError('INVALID_ARGS', `Unsupported config key: ${String(key)}`);
@@ -143,6 +150,7 @@ export function publicConfig(config: CliConfig): PublicCliConfig {
     model: config.model,
     sizePreset: config.sizePreset,
     imageCount: config.imageCount,
+    ...(config.analysisModel ? { analysisModel: config.analysisModel } : {}),
   };
 }
 

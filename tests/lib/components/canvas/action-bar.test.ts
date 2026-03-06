@@ -366,21 +366,19 @@ describe('ActionBar', () => {
   })
 
   describe('Buttons disabled during generation', () => {
-    it('disables Regenerate button when status is generating', () => {
+    it('disables Run Again button when status is generating', () => {
       generationMock._setStatus('generating')
-      // Need results to show the bar - set status to complete first to render,
-      // but the bar only shows for 'complete' status with results
-      // The bar checks hasResults = status === 'complete' && results.length > 0
-      // So during generating the bar won't show. This is correct behavior.
       generationMock._setResults([
         { status: 'success', imageDataUrl: 'data:image/png;base64,img1', selected: false },
       ])
 
       const { container } = render(ActionBar)
-      // ActionBar only renders when hasResults (status=complete && results.length > 0)
-      // So during 'generating' the bar is hidden - this is expected
+      // ActionBar stays visible when results exist, even during generation
       const actionBar = container.querySelector('[data-testid="action-bar"]')
-      expect(actionBar).toBeNull()
+      expect(actionBar).not.toBeNull()
+      const runAgainButton = container.querySelector('[data-testid="run-again-button"]') as HTMLButtonElement
+      expect(runAgainButton).not.toBeNull()
+      expect(runAgainButton.disabled).toBe(true)
     })
   })
 })
