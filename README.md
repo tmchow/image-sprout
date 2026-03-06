@@ -1,4 +1,4 @@
-![Image Sprout hero](assets/image-sprout-wide.jpg)
+![Image Sprout hero](https://raw.githubusercontent.com/tmchow/image-sprout/main/assets/image-sprout-wide.jpg)
 
 # Image Sprout
 
