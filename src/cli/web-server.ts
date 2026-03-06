@@ -116,10 +116,19 @@ function sendJson(res: ServerResponse, status: number, payload: unknown): void {
   res.end(JSON.stringify(payload));
 }
 
+const CLI_ERROR_TO_HTTP: Record<string, number> = {
+  NOT_FOUND: 404,
+  AUTH_REQUIRED: 401,
+  API_ERROR: 502,
+  IO_ERROR: 500,
+  INTERNAL_ERROR: 500,
+  PROJECT_NOT_READY: 409,
+};
+
 export function toApiErrorResponse(error: unknown): ApiResponse {
   if (error instanceof CliError) {
     return {
-      status: error.exitCode === 1 ? 404 : 400,
+      status: CLI_ERROR_TO_HTTP[error.code] ?? 400,
       payload: {
         error: {
           code: error.code,
@@ -498,9 +507,7 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
         });
       }
 
-      const status = persist
-        ? getProjectStatus(projectId)
-        : getProjectStatus(projectId);
+      const status = getProjectStatus(projectId);
       const project = showProject(projectId);
       return {
         status: 200,
