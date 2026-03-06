@@ -62,7 +62,7 @@ Alias for:
 const GENERATE_HELP = `image-sprout generate [--project <name-or-id>] --prompt <text>|--prompt-file <path> [options]
 
 Alias for:
-  image-sprout project generate <project> --prompt <text>|--prompt-file <path> [--session <id>] [--feedback <text>] [--model <id>] [--size <16:9|1:1|9:16>] [--count <2|4|6>] [--force]`;
+  image-sprout project generate <project> --prompt <text>|--prompt-file <path> [--session <id>] [--feedback <text>] [--model <id>] [--size <16:9|1:1|9:16>] [--count <1|2|4|6>] [--force]`;
 
 const SESSION_HELP = `image-sprout session <subcommand> [options]
 
