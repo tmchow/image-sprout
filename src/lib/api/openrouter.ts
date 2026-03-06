@@ -322,8 +322,11 @@ subjectGuide: Describe ONLY the recurring subject(s) that appear across images â
     throw new Error('No text response received from reference image analysis');
   }
 
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  const jsonCandidate = jsonMatch ? jsonMatch[0] : text;
+
   try {
-    const parsed = JSON.parse(text) as {
+    const parsed = JSON.parse(jsonCandidate) as {
       visualStyle?: string;
       subjectGuide?: string;
       styleDescription?: string;
@@ -334,7 +337,7 @@ subjectGuide: Describe ONLY the recurring subject(s) that appear across images â
       subjectGuide: sanitizeGuideText(parsed.subjectGuide ?? parsed.coreInstruction ?? ''),
     };
   } catch {
-    // Fallback: if the model didn't return valid JSON, treat the whole response as visual style.
+    console.warn('Warning: analysis model returned non-JSON response; using raw text as visualStyle');
     return { visualStyle: sanitizeGuideText(text), subjectGuide: '' };
   }
 }
