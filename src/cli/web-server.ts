@@ -489,15 +489,19 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
         const result = await analyzeReferenceImages(styleRefs, apiKey);
         visualStyle = result.visualStyle;
         subjectGuide = result.subjectGuide;
+      } else if (target === 'both') {
+        const [styleResult, subjectResult] = await Promise.all([
+          analyzeReferenceImages(styleRefs, apiKey),
+          analyzeReferenceImages(subjectRefs, apiKey),
+        ]);
+        visualStyle = styleResult.visualStyle;
+        subjectGuide = subjectResult.subjectGuide;
+      } else if (target === 'style') {
+        const result = await analyzeReferenceImages(styleRefs, apiKey);
+        visualStyle = result.visualStyle;
       } else {
-        if (target === 'style' || target === 'both') {
-          const result = await analyzeReferenceImages(styleRefs, apiKey);
-          visualStyle = result.visualStyle;
-        }
-        if (target === 'subject' || target === 'both') {
-          const result = await analyzeReferenceImages(subjectRefs, apiKey);
-          subjectGuide = result.subjectGuide;
-        }
+        const result = await analyzeReferenceImages(subjectRefs, apiKey);
+        subjectGuide = result.subjectGuide;
       }
 
       if (persist) {

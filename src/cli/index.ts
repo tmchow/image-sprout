@@ -637,15 +637,19 @@ async function runProjectDerive(
     const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey);
     nextStyle = analysis.visualStyle;
     nextSubject = analysis.subjectGuide;
+  } else if (target === 'both') {
+    const [styleAnalysis, subjectAnalysis] = await Promise.all([
+      analyzeReferenceImages(styleRefDataUrls, apiKey),
+      analyzeReferenceImages(subjectRefDataUrls, apiKey),
+    ]);
+    nextStyle = styleAnalysis.visualStyle;
+    nextSubject = subjectAnalysis.subjectGuide;
+  } else if (target === 'style') {
+    const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey);
+    nextStyle = analysis.visualStyle;
   } else {
-    if (target === 'style' || target === 'both') {
-      const analysis = await analyzeReferenceImages(styleRefDataUrls, apiKey);
-      nextStyle = analysis.visualStyle;
-    }
-    if (target === 'subject' || target === 'both') {
-      const analysis = await analyzeReferenceImages(subjectRefDataUrls, apiKey);
-      nextSubject = analysis.subjectGuide;
-    }
+    const analysis = await analyzeReferenceImages(subjectRefDataUrls, apiKey);
+    nextSubject = analysis.subjectGuide;
   }
 
   updateProjectGuides(projectId, {
