@@ -5,7 +5,7 @@ export type ReferenceRole = 'style' | 'subject' | 'both';
 export type DeriveTarget = 'style' | 'subject' | 'both';
 export type ProjectMode = 'none' | 'style' | 'subject' | 'both';
 export type ImageModel = string;
-export const SUPPORTED_IMAGE_COUNTS = [2, 4, 6] as const;
+export const SUPPORTED_IMAGE_COUNTS = [1, 2, 4, 6] as const;
 export type SupportedImageCount = typeof SUPPORTED_IMAGE_COUNTS[number];
 
 export { BUILTIN_IMAGE_MODELS, DEFAULT_MODEL } from './models.config';
