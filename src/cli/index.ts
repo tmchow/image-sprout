@@ -23,6 +23,7 @@ import {
   createProject,
   createRun,
   deleteProject,
+  deleteSession,
   getProjectStatus,
   getRun,
   getSession,
@@ -770,7 +771,7 @@ async function runProjectGenerate(
 function runSessions(ctx: CommandContext, args: ParsedArgv, positionals: string[]): void {
   assertOnlyOptions(args, new Set(['project']));
   const projectId = resolveProjectId(projectFlag(args));
-  const sub = requireSubcommand('session', positionals[1] ?? 'list', ['list', 'show']);
+  const sub = requireSubcommand('session', positionals[1] ?? 'list', ['list', 'show', 'delete']);
   switch (sub) {
     case 'list': {
       const data = limitItems(listSessions(projectId), ctx);
@@ -797,6 +798,15 @@ function runSessions(ctx: CommandContext, args: ParsedArgv, positionals: string[
         ];
         return lines.join('\n');
       });
+      return;
+    }
+    case 'delete': {
+      const sessionId = positionals[2];
+      if (!sessionId) {
+        throw new CliError('INVALID_ARGS', 'session delete requires <session-id>');
+      }
+      deleteSession(projectId, sessionId);
+      emitSuccess(ctx, { projectId, sessionId }, (payload) => `ok project=${payload.projectId} deleted=${payload.sessionId}`);
       return;
     }
   }
