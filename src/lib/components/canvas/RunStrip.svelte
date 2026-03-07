@@ -8,13 +8,7 @@
   }
 
   function aspectRatioValue(sizePreset: SizePreset): string {
-    if (sizePreset === '1:1') {
-      return '1 / 1';
-    }
-    if (sizePreset === '9:16') {
-      return '9 / 16';
-    }
-    return '16 / 9';
+    return sizePreset.replace(':', ' / ');
   }
 
 </script>

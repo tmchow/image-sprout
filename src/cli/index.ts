@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { analyzeReferenceImages, generateImages } from '../lib/api/openrouter';
-import { SUPPORTED_IMAGE_COUNTS, type ImageModel, type SizePreset } from '../lib/types';
+import { SIZE_PRESETS, SUPPORTED_IMAGE_COUNTS, type ImageModel, type SizePreset } from '../lib/types';
 import { getBooleanOption, getStringOption, hasOption, parseArgv } from './argv';
 import { commandHelp, QUICK_HELP } from './help';
 import { asCliError, CliError, EXIT_CODES } from './errors';
@@ -263,10 +263,10 @@ function parseSize(input: string | undefined, fallback: SizePreset): SizePreset 
   if (!input) {
     return fallback;
   }
-  if (input === '16:9' || input === '1:1' || input === '9:16') {
-    return input;
+  if ((SIZE_PRESETS as readonly string[]).includes(input)) {
+    return input as SizePreset;
   }
-  throw new CliError('INVALID_ARGS', `Invalid size: ${input}`, ['Use one of: 16:9, 1:1, 9:16']);
+  throw new CliError('INVALID_ARGS', `Invalid size: ${input}`, [`Use one of: ${SIZE_PRESETS.join(', ')}`]);
 }
 
 function parseCount(input: string | undefined, fallback: number): number {
