@@ -1,5 +1,6 @@
 <script lang="ts">
   import { generationState, selectedResults, setFeedback, clearSelection, generate } from '../../stores/generation.svelte';
+  import { settingsState } from '../../stores/settings.svelte';
 
   let localFeedback = $state('');
 
@@ -15,9 +16,14 @@
         ? 'No images selected. This iteration will use the project references with your feedback.'
         : 'Tip: click one or more images above to carry them forward visually, then describe the changes you want.'
   );
+  let modelLabel = $derived(
+    activeRun
+      ? (settingsState.availableModels.find((m) => m.id === activeRun.model)?.label ?? activeRun.model)
+      : null
+  );
   let runSummary = $derived(
     activeRun
-      ? `${activeRun.sizePreset} · ${activeRun.imageCount} image${activeRun.imageCount === 1 ? '' : 's'} · ${activeRun.model}`
+      ? `${activeRun.sizePreset} · ${activeRun.imageCount} image${activeRun.imageCount === 1 ? '' : 's'} · ${modelLabel}`
       : null
   );
 
@@ -58,9 +64,13 @@
       <div class="flex items-start justify-between gap-3">
         <div class="min-w-0 flex-1">
           <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Prompt Used</p>
-          <p class="mt-1 text-sm text-slate-700 whitespace-pre-wrap break-words">{generationState.prompt}</p>
+          <p class="mt-1 text-sm text-slate-700 whitespace-pre-wrap break-words">{activeRun?.prompt ?? generationState.prompt}</p>
+          {#if activeRun?.feedback}
+            <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400 mt-2">Feedback</p>
+            <p class="mt-1 text-sm text-slate-700 whitespace-pre-wrap break-words">{activeRun.feedback}</p>
+          {/if}
           {#if runSummary}
-            <p class="mt-1 text-xs text-slate-500">Run used: {runSummary}</p>
+            <p class="mt-1 text-xs text-slate-500">{runSummary}</p>
           {/if}
           <p class="mt-2 text-xs text-slate-500">{selectionHint}</p>
         </div>

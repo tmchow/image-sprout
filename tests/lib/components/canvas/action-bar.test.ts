@@ -1,6 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, fireEvent } from '@testing-library/svelte'
 
+let _availableModels: any[] = [
+  { id: 'google/gemini-3.1-flash-image-preview', label: 'Nano Banana 2', source: 'builtin' },
+  { id: 'google/gemini-3-pro-image-preview', label: 'Nano Banana Pro', source: 'builtin' },
+  { id: 'openai/gpt-5-image', label: 'GPT-5 Image', source: 'builtin' },
+]
+
+vi.mock('../../../../src/lib/stores/settings.svelte.ts', () => ({
+  settingsState: {
+    get availableModels() { return _availableModels },
+  },
+}))
+
 // Mock the generation store before importing components
 vi.mock('../../../../src/lib/stores/generation.svelte.ts', () => {
   let _status = 'idle' as string
@@ -184,7 +196,65 @@ describe('ActionBar', () => {
       generationMock.selectedResults.mockReturnValue([])
 
       const { container } = render(ActionBar)
-      expect(container.textContent).toContain('Run used: 16:9 · 6 images · google/gemini-3.1-flash-image-preview')
+      expect(container.textContent).toContain('16:9 · 6 images · Nano Banana 2')
+    })
+
+    it('shows the active run prompt and feedback when switching runs', () => {
+      generationMock._setStatus('complete')
+      generationMock._setPrompt('A flower in a forest')
+      generationMock._setResults([
+        { status: 'success', imageDataUrl: 'data:image/png;base64,img1', selected: false },
+      ])
+      generationMock._setSessionRuns([
+        {
+          id: 'run-1',
+          prompt: 'A flower in a forest',
+          feedback: null,
+          model: 'google/gemini-3.1-flash-image-preview',
+          sizePreset: '16:9',
+          imageCount: 4,
+          images: [],
+        },
+        {
+          id: 'run-2',
+          prompt: 'A flower in a forest',
+          feedback: 'Make the colors more vibrant',
+          model: 'google/gemini-3.1-flash-image-preview',
+          sizePreset: '16:9',
+          imageCount: 4,
+          images: [],
+        },
+      ])
+      generationMock._setActiveRunIndex(1)
+      generationMock.selectedResults.mockReturnValue([])
+
+      const { container } = render(ActionBar)
+      expect(container.textContent).toContain('Feedback')
+      expect(container.textContent).toContain('Make the colors more vibrant')
+    })
+
+    it('does not show feedback label when active run has no feedback', () => {
+      generationMock._setStatus('complete')
+      generationMock._setPrompt('A flower in a forest')
+      generationMock._setResults([
+        { status: 'success', imageDataUrl: 'data:image/png;base64,img1', selected: false },
+      ])
+      generationMock._setSessionRuns([
+        {
+          id: 'run-1',
+          prompt: 'A flower in a forest',
+          feedback: null,
+          model: 'google/gemini-3.1-flash-image-preview',
+          sizePreset: '16:9',
+          imageCount: 4,
+          images: [],
+        },
+      ])
+      generationMock._setActiveRunIndex(0)
+      generationMock.selectedResults.mockReturnValue([])
+
+      const { container } = render(ActionBar)
+      expect(container.textContent).not.toContain('Feedback')
     })
   })
 
