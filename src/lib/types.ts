@@ -1,6 +1,7 @@
 import type { ModelRequestFormat } from './models.config';
 
-export type SizePreset = '16:9' | '1:1' | '9:16';
+export const SIZE_PRESETS = ['1:1', '4:3', '3:2', '16:9', '4:5', '9:16'] as const;
+export type SizePreset = typeof SIZE_PRESETS[number];
 export type ReferenceRole = 'style' | 'subject' | 'both';
 export type DeriveTarget = 'style' | 'subject' | 'both';
 export type ProjectMode = 'none' | 'style' | 'subject' | 'both';

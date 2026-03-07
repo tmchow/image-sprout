@@ -10,6 +10,11 @@
     return generationState.sessionRuns[generationState.activeRunIndex]?.sizePreset ?? settingsState.sizePreset;
   }
 
+  function isCompact(sizePreset: SizePreset): boolean {
+    const [w, h] = sizePreset.split(':').map(Number);
+    return w <= h;
+  }
+
   function gridClass(count: number, sizePreset: SizePreset): string {
     if (count >= 6) {
       if (sizePreset === '1:1') {
@@ -22,34 +27,25 @@
 
   function gridWidthClass(count: number, sizePreset: SizePreset): string {
     if (count >= 6) {
-      if (sizePreset === '1:1') {
-        return 'max-w-4xl';
-      }
-      if (sizePreset === '9:16') {
+      if (isCompact(sizePreset)) {
         return 'max-w-4xl';
       }
       return 'max-w-7xl';
     }
     if (count >= 4) {
-      if (sizePreset === '1:1') {
+      if (isCompact(sizePreset)) {
         return 'max-w-4xl';
       }
       return 'max-w-6xl';
     }
-    if (sizePreset === '1:1') {
+    if (isCompact(sizePreset)) {
       return 'max-w-4xl';
     }
     return 'max-w-5xl';
   }
 
   function aspectRatioValue(sizePreset: SizePreset): string {
-    if (sizePreset === '1:1') {
-      return '1 / 1';
-    }
-    if (sizePreset === '9:16') {
-      return '9 / 16';
-    }
-    return '16 / 9';
+    return sizePreset.replace(':', ' / ');
   }
 
   function openPreview(index: number): void {

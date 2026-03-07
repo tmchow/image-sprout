@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { CliError } from './errors';
 import { ensureAppHome, getConfigPath } from './paths';
 import { getDefaultModelId, listModelRegistry } from './model-registry';
-import { SUPPORTED_IMAGE_COUNTS } from '../lib/types';
+import { SIZE_PRESETS, SUPPORTED_IMAGE_COUNTS } from '../lib/types';
 
 export { getConfigPath } from './paths';
 import type { CliConfig, PublicCliConfig } from './types';
@@ -56,9 +56,9 @@ export function readConfig(): CliConfig {
     return healed;
   }
 
-  if (!['16:9', '1:1', '9:16'].includes(config.sizePreset)) {
+  if (!(SIZE_PRESETS as readonly string[]).includes(config.sizePreset)) {
     throw new CliError('CONFIG_ERROR', `Invalid configured sizePreset: ${String(config.sizePreset)}`, [
-      'Use one of: 16:9, 1:1, 9:16',
+      `Use one of: ${SIZE_PRESETS.join(', ')}`,
     ]);
   }
 
@@ -110,9 +110,9 @@ function validateSetValue(key: keyof CliConfig, rawValue: string): CliConfig[key
       return rawValue;
     }
     case 'sizePreset': {
-      if (rawValue !== '16:9' && rawValue !== '1:1' && rawValue !== '9:16') {
+      if (!(SIZE_PRESETS as readonly string[]).includes(rawValue)) {
         throw new CliError('INVALID_ARGS', `Invalid size preset: ${rawValue}`, [
-          'Use one of: 16:9, 1:1, 9:16',
+          `Use one of: ${SIZE_PRESETS.join(', ')}`,
         ]);
       }
       return rawValue;

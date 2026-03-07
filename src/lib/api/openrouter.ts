@@ -7,7 +7,10 @@ const REFERER = 'https://image-sprout.app';
 /** OpenAI models use a `size` param (WxH) instead of `image_config.aspect_ratio`. */
 const OPENAI_SIZE_MAP: Record<SizePreset, string> = {
   '1:1': '1024x1024',
+  '4:3': '1536x1024',
+  '3:2': '1536x1024',
   '16:9': '1536x1024',
+  '4:5': '1024x1536',
   '9:16': '1024x1536',
 };
 

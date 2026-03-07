@@ -299,33 +299,34 @@ describe('GenerationForm', () => {
 
 describe('SizePresets', () => {
   describe('Size preset selection updates store', () => {
-    it('renders three size preset options', () => {
+    it('renders a size preset dropdown with all options', () => {
       const { container } = render(SizePresets)
-      const presets = container.querySelectorAll('[data-testid^="size-preset-"]')
-      expect(presets.length).toBe(3)
+      const select = container.querySelector('[data-testid="size-presets"]') as HTMLSelectElement
+      expect(select).not.toBeNull()
+      const options = select.querySelectorAll('option')
+      expect(options.length).toBe(6)
     })
 
-    it('shows Blog Header (16:9), Square (1:1), and Story (9:16)', () => {
+    it('includes all size presets', () => {
       const { container } = render(SizePresets)
-      expect(container.textContent).toContain('Blog Header')
-      expect(container.textContent).toContain('Square')
-      expect(container.textContent).toContain('Story')
+      const select = container.querySelector('[data-testid="size-presets"]') as HTMLSelectElement
+      const values = Array.from(select.querySelectorAll('option')).map((o) => o.value)
+      expect(values).toEqual(['1:1', '4:3', '3:2', '16:9', '4:5', '9:16'])
     })
 
-    it('highlights the active preset with indigo styling', () => {
+    it('reflects the active preset as the selected value', () => {
       settingsMock._setSizePreset('16:9')
       const { container } = render(SizePresets)
-      const activePreset = container.querySelector('[data-testid="size-preset-16:9"]')
-      expect(activePreset).not.toBeNull()
-      // Active preset should have indigo background class
-      expect(activePreset!.className).toMatch(/bg-indigo/)
+      const select = container.querySelector('[data-testid="size-presets"]') as HTMLSelectElement
+      expect(select).not.toBeNull()
+      expect(select.value).toBe('16:9')
     })
 
-    it('clicking a preset calls setSizePreset', async () => {
+    it('changing the dropdown calls setSizePreset', async () => {
       const { container } = render(SizePresets)
-      const squarePreset = container.querySelector('[data-testid="size-preset-1:1"]')
-      expect(squarePreset).not.toBeNull()
-      await fireEvent.click(squarePreset!)
+      const select = container.querySelector('[data-testid="size-presets"]') as HTMLSelectElement
+      expect(select).not.toBeNull()
+      await fireEvent.change(select, { target: { value: '1:1' } })
       expect(settingsMock.setSizePreset).toHaveBeenCalledWith('1:1')
     })
   })
