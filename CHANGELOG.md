@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/tmchow/image-sprout/compare/v1.1.1...v1.1.2) (2026-03-07)
+
+
+### Bug Fixes
+
+* **ci:** add release environment for npm OIDC publishing ([#11](https://github.com/tmchow/image-sprout/issues/11)) ([ff58961](https://github.com/tmchow/image-sprout/commit/ff589618c5b7dbfc472d5030a7439cea6552d668))
+
 ## [1.1.1](https://github.com/tmchow/image-sprout/compare/v1.1.0...v1.1.1) (2026-03-07)
 
 
