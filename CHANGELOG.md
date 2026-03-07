@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/tmchow/image-sprout/compare/v1.1.0...v1.1.1) (2026-03-07)
+
+
+### Bug Fixes
+
+* **ci:** combine release-please and publish into one workflow ([#9](https://github.com/tmchow/image-sprout/issues/9)) ([4be8b82](https://github.com/tmchow/image-sprout/commit/4be8b820e93fa0c47625b288340524fc321844a6))
+
 ## [1.1.0](https://github.com/tmchow/image-sprout/compare/v1.0.1...v1.1.0) (2026-03-07)
 
 
