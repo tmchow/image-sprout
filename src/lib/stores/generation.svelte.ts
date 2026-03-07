@@ -13,6 +13,7 @@ interface GenerationState {
   activeSessionId: string | null;
   activeRunIndex: number;
   sessionRuns: Run[];
+  draftActive: boolean;
 }
 
 function createInitialState(): GenerationState {
@@ -25,6 +26,7 @@ function createInitialState(): GenerationState {
     activeSessionId: null,
     activeRunIndex: 0,
     sessionRuns: [],
+    draftActive: false,
   };
 }
 
@@ -71,10 +73,12 @@ export function reset(): void {
   generationState.activeSessionId = null;
   generationState.activeRunIndex = 0;
   generationState.sessionRuns = [];
+  generationState.draftActive = false;
 }
 
 export function startNewSessionDraft(): void {
   reset();
+  generationState.draftActive = true;
 }
 
 setDeleteActiveProjectHandler(reset);
@@ -95,6 +99,7 @@ export async function loadSession(sessionId: string): Promise<void> {
   const projectId = activeProjectId.value;
   if (!projectId) return;
   const { session, runs } = await getSessionRequest(projectId, sessionId);
+  generationState.draftActive = false;
   generationState.activeSessionId = sessionId;
   generationState.sessionRuns = runs;
   generationState.prompt = session.prompt;
@@ -145,6 +150,7 @@ export async function generate(params: { prompt: string }): Promise<void> {
       imageCount: settingsState.imageCount,
     });
 
+    generationState.draftActive = false;
     generationState.activeSessionId = result.sessionId;
     generationState.sessionRuns = result.runs;
     generationState.activeRunIndex = result.runs.length - 1;

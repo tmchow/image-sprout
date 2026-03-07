@@ -84,7 +84,7 @@
   </button>
 </div>
 
-{#if sessions.length === 0}
+{#if sessions.length === 0 && !generationState.draftActive}
   <div data-testid="session-history-empty" class="px-4 py-6">
     <div class="bg-slate-50 rounded-lg p-4 text-center">
       {#if canGenerate}
@@ -103,6 +103,17 @@
   </div>
 {:else}
   <div data-testid="session-history-list" class="py-1">
+    {#if generationState.draftActive}
+      <div
+        data-testid="session-draft"
+        class="flex items-center w-full px-4 py-2.5 text-left bg-accent-50 border-r-2 border-accent-500"
+      >
+        <div class="flex-1 min-w-0">
+          <p class="text-sm text-slate-500 italic">New session</p>
+          <p class="text-xs text-slate-400">Enter a prompt to begin</p>
+        </div>
+      </div>
+    {/if}
     {#each sessions as session (session.id)}
       <div
         data-testid="session-item-{session.id}"
