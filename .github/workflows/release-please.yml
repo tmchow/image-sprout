@@ -32,7 +32,10 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: "22"
-          registry-url: "https://registry.npmjs.org"
+          # No registry-url: it sets NODE_AUTH_TOKEN which prevents OIDC fallback
+
+      - name: Upgrade npm for OIDC
+        run: npm install -g npm@latest
 
       - run: npm ci
       - run: npm run build
