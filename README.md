@@ -67,6 +67,30 @@ npm install
 
 From the repo checkout, you can run the app with the local scripts or run the built CLI directly.
 
+### Install As An Agent Skill
+
+If you're using an AI agent runtime, install the skill instead of the CLI:
+
+**ClawHub (OpenClaw):**
+
+```bash
+npx clawhub@latest install image-sprout
+```
+
+Or if the ClawHub CLI is already installed:
+
+```bash
+clawhub install image-sprout
+```
+
+**tmc-marketplace (Claude Code / Codex):**
+
+```bash
+claude plugin add tmchow/tmc-marketplace/plugins/image-sprout
+```
+
+**Manual:** point your agent at the [skill file](https://raw.githubusercontent.com/tmchow/image-sprout/main/skills/agents/SKILL.md) directly. This won't auto-update when new versions are released.
+
 ## How To Run It
 
 You can use either mode.
@@ -364,40 +388,12 @@ These are shorthand for `project generate` and `project derive`, respectively.
 
 ## Agent Skills
 
-Image Sprout ships skill files so AI agents can use the full workflow — project setup, reference management, guide derivation, generation, and result inspection — without additional documentation.
+Image Sprout ships skill files so AI agents can use the full workflow — project setup, reference management, guide derivation, generation, and result inspection — without additional documentation. See [Install As An Agent Skill](#install-as-an-agent-skill) for setup.
 
 | Runtime | Path | Distribution |
 |---------|------|--------------|
 | OpenClaw / ClawHub | `skills/openclaw/SKILL.md` | Published to ClawHub directly |
 | Claude Code + Codex | `skills/agents/SKILL.md` | Via tmc-marketplace plugin |
-
-### Install Via ClawHub (OpenClaw)
-
-```bash
-npx clawhub@latest install image-sprout
-```
-
-Or if the ClawHub CLI is already installed:
-
-```bash
-clawhub install image-sprout
-```
-
-### Install Via tmc-marketplace (Claude Code / Codex)
-
-```bash
-claude plugin add tmchow/tmc-marketplace/plugins/image-sprout
-```
-
-### Install Manually
-
-Point your agent at the skill file directly:
-
-```
-https://raw.githubusercontent.com/tmchow/image-sprout/main/skills/agents/SKILL.md
-```
-
-This gives you the latest version from the repo but won't auto-update when new versions are released.
 
 ## CLI For Agents
 
