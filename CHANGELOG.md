@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/tmchow/image-sprout/compare/v1.1.4...v1.2.0) (2026-03-07)
+
+
+### Features
+
+* add size presets 4:3, 3:2, 4:5 and convert to dropdown ([#18](https://github.com/tmchow/image-sprout/issues/18)) ([82e406c](https://github.com/tmchow/image-sprout/commit/82e406c1df8ea9048c4b62f204f2994580c874bb))
+
+
+### Bug Fixes
+
+* **canvas:** show run-specific prompt, feedback, and friendly model name ([#17](https://github.com/tmchow/image-sprout/issues/17)) ([c707d8a](https://github.com/tmchow/image-sprout/commit/c707d8a7197172d1004c0079c0e6495f7a35b198))
+
 ## [1.1.4](https://github.com/tmchow/image-sprout/compare/v1.1.3...v1.1.4) (2026-03-07)
 
 
