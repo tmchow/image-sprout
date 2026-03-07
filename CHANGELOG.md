@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/tmchow/image-sprout/compare/v1.1.2...v1.1.3) (2026-03-07)
+
+
+### Bug Fixes
+
+* **ci:** fix npm OIDC trusted publishing ([#13](https://github.com/tmchow/image-sprout/issues/13)) ([b0e84c9](https://github.com/tmchow/image-sprout/commit/b0e84c91f0b627a72614f6ec9fe53b4f2334bffa))
+
 ## [1.1.2](https://github.com/tmchow/image-sprout/compare/v1.1.1...v1.1.2) (2026-03-07)
 
 
