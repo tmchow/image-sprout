@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/tmchow/image-sprout/compare/v1.1.3...v1.1.4) (2026-03-07)
+
+
+### Bug Fixes
+
+* add repository field for npm provenance ([#15](https://github.com/tmchow/image-sprout/issues/15)) ([ca3925e](https://github.com/tmchow/image-sprout/commit/ca3925e04181e96b8556210e319993256cc400ad))
+
 ## [1.1.3](https://github.com/tmchow/image-sprout/compare/v1.1.2...v1.1.3) (2026-03-07)
 
 
