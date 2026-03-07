@@ -304,6 +304,30 @@ Include a scope when it clarifies context: `feat(cli): add batch mode`, `fix(can
 
 Append `!` before the colon for breaking changes: `feat!: remove legacy config format`, `refactor(cli)!: new arg syntax`.
 
+## Agent Skill Files
+
+Two skill files ship with the repo:
+
+| File | Distribution | CI Workflow |
+|------|-------------|-------------|
+| `skills/agents/SKILL.md` | tmc-marketplace plugin | `sync-skill-to-marketplace.yml` |
+| `skills/openclaw/SKILL.md` | ClawHub | `publish-openclaw-skill.yml` |
+
+### tmc-marketplace sync
+
+When `skills/agents/SKILL.md` is changed on `main`, the sync workflow automatically:
+1. Copies the updated skill file to tmc-marketplace
+2. Commits directly to `main` with a conventional commit (`fix(image-sprout): ...`)
+3. release-please in tmc-marketplace picks up the commit and handles the version bump in its next release PR
+
+### OpenClaw / ClawHub publish
+
+When `skills/openclaw/SKILL.md` is changed on `main`, the publish workflow automatically:
+1. Publishes the skill to ClawHub using the CLI version from `package.json`
+2. Falls back to prerelease suffixes (`<version>-skill.N`) if the base version already exists
+
+Keep both skill files in sync with CLI behavior. If you change commands, flags, defaults, or workflows that the skills document, update both skill files in the same PR.
+
 ## ACP Session Task Tracking
 
 When spawned via ACP (Agentic Client Protocol):

@@ -1,0 +1,42 @@
+name: Sync skill to tmc-marketplace
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - skills/agents/SKILL.md
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout image-sprout
+        uses: actions/checkout@v6
+
+      - name: Checkout tmc-marketplace
+        uses: actions/checkout@v6
+        with:
+          repository: tmchow/tmc-marketplace
+          token: ${{ secrets.TMC_MARKETPLACE_PAT }}
+          path: marketplace
+
+      - name: Copy skill file
+        run: cp skills/agents/SKILL.md marketplace/plugins/image-sprout/skills/image-sprout/SKILL.md
+
+      - name: Check for changes
+        id: diff
+        run: |
+          cd marketplace
+          git diff --quiet && echo "changed=false" >> "$GITHUB_OUTPUT" || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push directly to main
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          cd marketplace
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add plugins/image-sprout/skills/image-sprout/SKILL.md
+          git commit -m "fix(image-sprout): sync skill from source repo"
+          git push origin main
+        env:
+          GH_TOKEN: ${{ secrets.TMC_MARKETPLACE_PAT }}
