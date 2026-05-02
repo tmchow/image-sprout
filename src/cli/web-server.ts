@@ -170,8 +170,8 @@ async function readJson<T>(req: IncomingMessage): Promise<T> {
   return JSON.parse(Buffer.concat(chunks).toString('utf8')) as T;
 }
 
-function browserRefs(projectId: string) {
-  return listReferences(projectId).map((ref) => ({
+function browserRef(projectId: string, ref: ReturnType<typeof listReferences>[number]) {
+  return {
     id: ref.id,
     projectId,
     role: ref.role,
@@ -181,7 +181,11 @@ function browserRefs(projectId: string) {
     height: ref.height,
     createdAt: ref.createdAt,
     dataUrl: readFileAsDataUrl(ref.path),
-  }));
+  };
+}
+
+function browserRefs(projectId: string) {
+  return listReferences(projectId).map((ref) => browserRef(projectId, ref));
 }
 
 function browserRun(projectId: string, runId: string) {
@@ -420,17 +424,7 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
       const refs = addReferenceUploads(projectId, requestBody.body?.files ?? [], parseRole(requestBody.body?.role));
       return {
         status: 200,
-        payload: refs.map((ref) => ({
-          id: ref.id,
-          projectId,
-          role: ref.role,
-          filename: ref.filename,
-          mimeType: ref.mimeType,
-          width: ref.width,
-          height: ref.height,
-          createdAt: ref.createdAt,
-          dataUrl: readFileAsDataUrl(ref.path),
-        })),
+        payload: refs.map((ref) => browserRef(projectId, ref)),
       };
     }
 
@@ -438,17 +432,7 @@ export async function routeApiRequest(method: string, urlInput: string, body: un
       const ref = updateReferenceRole(projectId, segments[4], parseRole((body as { role?: ReferenceRole }).role));
       return {
         status: 200,
-        payload: {
-          id: ref.id,
-          projectId,
-          role: ref.role,
-          filename: ref.filename,
-          mimeType: ref.mimeType,
-          width: ref.width,
-          height: ref.height,
-          createdAt: ref.createdAt,
-          dataUrl: readFileAsDataUrl(ref.path),
-        },
+        payload: browserRef(projectId, ref),
       };
     }
 

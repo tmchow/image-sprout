@@ -1,11 +1,22 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
-import type { ImageModel, Project, Session, SizePreset } from '../lib/types';
+import type {
+  DeriveTarget,
+  ImageModel,
+  Project,
+  ProjectMode,
+  ProjectStatus,
+  ReferenceRole,
+  Session,
+  SizePreset,
+} from '../lib/types';
 import { CliError } from './errors';
 import { extForMimeType, mimeTypeForFilePath, persistGeneratedImage, readFileAsDataUrl } from './io';
 import { getDefaultModelId } from './model-registry';
 import { ensureAppHome, ensureProjectsPath, getProjectsPath, getStatePath } from './paths';
+
+export type { DeriveTarget, ProjectMode, ProjectStatus, ReferenceRole } from '../lib/types';
 
 interface AppState {
   activeProjectId: string | null;
@@ -22,10 +33,6 @@ interface StoredProjectRecord {
   createdAt: string;
   updatedAt: string;
 }
-
-export type ReferenceRole = 'style' | 'subject' | 'both';
-export type DeriveTarget = 'style' | 'subject' | 'both';
-export type ProjectMode = 'none' | 'style' | 'subject' | 'both';
 
 interface ReferenceRecord {
   id: string;
@@ -74,29 +81,6 @@ export interface ProjectSummary extends Project {
 
 export interface ProjectDetails extends ProjectSummary {
   refs: Array<ReferenceRecord & { path: string }>;
-}
-
-export interface ProjectStatus {
-  projectId: string;
-  projectName: string;
-  mode: ProjectMode;
-  refs: {
-    total: number;
-    styleOnly: number;
-    subjectOnly: number;
-    both: number;
-    effectiveStyle: number;
-    effectiveSubject: number;
-  };
-  guides: {
-    stylePresent: boolean;
-    subjectPresent: boolean;
-  };
-  readiness: {
-    style: boolean;
-    subject: boolean;
-    generate: boolean;
-  };
 }
 
 export interface ReferenceUpload {

@@ -31,13 +31,7 @@ export function readFileAsDataUrl(filePath: string): string {
     throw new CliError('IO_ERROR', `Failed reading file: ${filePath}`);
   }
 
-  const ext = path.extname(filePath).toLowerCase();
-  const mime = MIME_BY_EXT[ext];
-  if (!mime) {
-    throw new CliError('INVALID_ARGS', `Unsupported reference image extension: ${ext || '(none)'}`, [
-      'Use .png, .jpg, .jpeg, .webp, or .gif',
-    ]);
-  }
+  const mime = mimeTypeForFilePath(filePath);
 
   return `data:${mime};base64,${content.toString('base64')}`;
 }
@@ -78,10 +72,6 @@ function parseDataUrl(dataUrl: string): { mimeType: string; buffer: Buffer } {
   };
 }
 
-function fileExtForMime(mimeType: string): string {
-  return EXT_BY_MIME[mimeType] ?? 'png';
-}
-
 export function mimeTypeForFilePath(filePath: string): string {
   const ext = path.extname(filePath).toLowerCase();
   const mime = MIME_BY_EXT[ext];
@@ -94,7 +84,7 @@ export function mimeTypeForFilePath(filePath: string): string {
 }
 
 export function extForMimeType(mimeType: string): string {
-  return fileExtForMime(mimeType);
+  return EXT_BY_MIME[mimeType] ?? 'png';
 }
 
 export async function persistGeneratedImage(
@@ -120,7 +110,7 @@ export async function persistGeneratedImage(
     throw new CliError('IO_ERROR', 'Unsupported image payload from API');
   }
 
-  const ext = fileExtForMime(mimeType);
+  const ext = extForMimeType(mimeType);
   const filename = `${runId}-${String(index + 1).padStart(2, '0')}.${ext}`;
   const target = path.resolve(outDir, filename);
   writeFileSync(target, buffer);
